@@ -1,10 +1,3 @@
----
-title: "Benchmarking Apple M2: AMX, GPU, and Neural Engine"
-published: false
-description: "GEMM throughput, compute references, execution-path verification, and reproducible code for Apple M2."
-tags: performance, benchmarking, machinelearning, cpp
----
-
 An M2 MacBook Air packs several compute engines into a single chip: CPU vector units, the AMX matrix coprocessor, a GPU, and the Apple Neural Engine (ANE). Exploring these engines can reveal more of the machine's computing potential.
 
 The ANE is particularly interesting. Open-source projects such as [ANEForge](https://github.com/sbryngelson/ANEForge) have demonstrated complete ResNet-18 and ResNet-50 inference, alongside other neural-network workloads. They also make it possible to compile and execute programs directly on the ANE, giving developers more control over where computation runs.
@@ -16,8 +9,6 @@ Three findings stand out:
 - **ANE constant-B reaches 8.54 TFLOPS at N=2048**, compared with 2.34 TFLOPS for GPU.
 - **Prepacked AMX reaches 2.93 TFLOPS**, falling to 2.36 TFLOPS when A/B packing is included. Both use FP16 accumulation.
 - **AMX with FP32 accumulation reaches 88% of its measured arithmetic reference.** Input precision alone is not enough to choose that reference.
-
-**[Source code, data and reproduction scripts](https://github.com/ToExperienceMore/apple-m2-gemm-benchmarks)**
 
 ## 1. Compute references
 
@@ -74,7 +65,6 @@ AMX with packing and GPU are close: **7.28 ms** versus **7.33 ms**, with overlap
 ## 3. How the hardware was tested
 
 - **Hardware:** MacBook Air M2, 4 performance + 4 efficiency CPU cores, 10-core GPU, 16 GB memory.
-- **Power:** GEMM sweeps on battery, AMX instruction references on AC.
 - **Inputs:** identical seeded FP16 matrices, converted to FP32 for SGEMM. Buffers are reused without cache flushes; runtime A+B supplies both as inputs with fixed contents during timing.
 - **Threads:** best mean per size from BNNS 1/4/8 threads and custom AMX 1/4 workers; SGEMM uses `VECLIB_MAXIMUM_THREADS=8`.
 
@@ -102,6 +92,8 @@ x8:               0x00000c0000000000
 
 SGEMM was verified as AMX `FMA32`; the custom kernel uses `MATFP` mode 2 for FP16 accumulation. The GPU path records command-buffer timestamps; ANE execution requires device mask `0x4`. The [sampling, disassembly and runtime records](https://github.com/ToExperienceMore/apple-m2-gemm-benchmarks/blob/main/evidence/README.md) document these paths.
 
+For a live view of CPU, GPU and ANE activity while a workload runs, see [SiliconScope and the example screenshot](../evidence/README.md#watching-engine-activity-with-siliconscope).
+
 ## 5. Precision and error
 
 At N=2048, the custom FP16-accumulating AMX kernel has **0.65% relative L2 error** against FP32, compared with roughly **0.02–0.03%** for the other paths. The faster AMX result therefore comes with lower accumulation precision.
@@ -110,7 +102,7 @@ All implementations pass their configured checks. The custom kernel is checked a
 
 ## 6. Reproduce and extend
 
-The [GitHub repository](https://github.com/ToExperienceMore/apple-m2-gemm-benchmarks) includes setup instructions, benchmark and plotting scripts, raw samples and [detailed measurement tables](https://github.com/ToExperienceMore/apple-m2-gemm-benchmarks/blob/main/article/detailed-measurements.md). See the [benchmark commands](https://github.com/ToExperienceMore/apple-m2-gemm-benchmarks/blob/main/README.md#full-benchmark) to run the same size sweep.
+The [GitHub repository](https://github.com/ToExperienceMore/apple-m2-gemm-benchmarks)
 
 The next step is to investigate the gap between measured GEMM throughput and each engine’s compute reference: what limits performance, and how much headroom remains for optimization?
 

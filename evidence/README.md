@@ -1,8 +1,22 @@
 # Execution-path evidence
 
-Instruction traces and sampling records used to verify the benchmark execution paths. Paths in historical traces are relative to the original experiment layout; use the commands below to repeat the checks.
+[SiliconScope](https://github.com/kennss/SiliconScope) shows CPU, GPU and ANE activity while a workload runs. It does not show AMX. For AMX, we use sampling, disassembly and breakpoints to confirm AMX execution and determine the accumulation precision.
 
-## BNNS, N=2048, one thread
+## Watching engine activity with SiliconScope
+
+Run SiliconScope alongside the benchmark to observe GPU utilization and ANE activity as the workload starts and finishes.
+
+![SiliconScope on Apple M2, showing GPU utilization at 29% and the ANE idle.](siliconScope.png)
+
+*SiliconScope on the test machine: GPU utilization is 29%, while the ANE is idle at 0.0 W.*
+
+ANE activity is a [power-based estimate](https://github.com/kennss/SiliconScope/blob/main/docs/display-spec.md), separate from the article's throughput-to-reference percentages.
+
+## Detailed execution-path verification
+
+The following records and reproduction steps document each execution path. Paths in historical traces refer to the original experiment layout.
+
+### BNNS (AMX), N=2048, one thread
 
 1. `cpu-sample.txt`: the sampled stack leads through `BNNSMatMul` to the hot PC at `libBNNS.dylib + 0x553038`.
 2. `bnns-disasm.txt`: machine code at the hotspot includes `0x002012a8`.
@@ -10,21 +24,21 @@ Instruction traces and sampling records used to verify the benchmark execution p
 
 Decode: instruction base `0x201000`, opcode 21, GPR 8 → `AMX_MATFP(x8)`. Lane mode `(x8 >> 42) & 15 = 3`, ALU mode 0: FP16 inputs, FP32 accumulation, `z+x*y`. [Corsix MATFP](https://github.com/corsix/amx/blob/main/matfp.md)
 
-## SGEMM, N=2048
+### SGEMM (AMX), N=2048
 
 `sgemm-sample.txt` and `sgemm-hit.txt` connect `cblas_sgemm` to the hotspot at `libBLAS.dylib + 0x339bd4`. The breakpoint hits `0x00201189 = AMX_FMA32(x9)`, with `x9=0x200040`. Bits 60/61 (FP16 inputs) are zero, and bit 63 selects matrix mode. [Corsix FMA](https://github.com/corsix/amx/blob/main/fma.md)
 
-## Custom FP16 GEMM
+### Custom FP16 GEMM (AMX)
 
 `fp16-gemm-disassembly.txt` records the compiled tile loop. Its two MATFP operands have lane mode 2: FP16 X/Y/Z on M2. The source also specifies this mode explicitly; validation checks sequential hardware FP16 FMA output.
 
-## MPS and ANE
+### MPS and ANE
 
 For MPS, inspect `src/library_gemm.mm`: Metal device and buffers, MPS encode, command completion/error checks, and GPU timestamp collection. The actual timestamp samples are in the published library JSON records.
 
 For ANE, inspect `src/ane/matmul_native_timer.py`: it requires `_device_mask == ANE_MASK`. The pinned runtime defines CPU=1, GPU=2, ANE=4. Published constant/dynamic JSON rows contain `device_mask: 4`; the native C timer calls the loaded program's execute function. This is runtime routing evidence, not an ANE firmware instruction trace.
 
-## Repeat a CPU-side diagnostic
+### Repeat a CPU-side diagnostic
 
 Build and generate a run first. In one terminal, launch a longer native benchmark with its existing input directory:
 

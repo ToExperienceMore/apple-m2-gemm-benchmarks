@@ -94,7 +94,7 @@ All implementations use the same seeded FP16 matrices. Checks run automatically,
 
 ## Troubleshooting
 
-- **ANE failure:** inspect the run's ANE `.log` file. ANEForge uses OS-dependent private APIs; the recorded experiments used macOS 26.0.1. The GEMM suite includes ANE without automatic fallback or an option to skip it.
+- **ANE failure:** inspect the run's ANE `.log` file. ANEForge uses OS-dependent private APIs; the recorded experiments used macOS. The GEMM suite includes ANE without automatic fallback or an option to skip it.
 - **Incomplete run:** a failed command or validation check stops the runner. The summarizer rejects runs without `VALID.json`; inspect the terminal error and run logs.
 - **Different performance:** compare matrix size, precision, packing, thread count, power source and background load. The suite does not lock clocks or pin a physical core.
 
