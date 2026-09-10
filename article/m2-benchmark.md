@@ -1,23 +1,27 @@
-An M2 MacBook Air packs several compute engines into a single chip: CPU vector units, the AMX matrix coprocessor, a GPU, and the Apple Neural Engine (ANE). Exploring these engines can reveal more of the machine's computing potential.
+This exploration began with a practical discovery: **the M2's AMX, GPU and Neural Engine can all run real workloads through available libraries and community tools.** I knew little about AMX and had not known how to use the Apple Neural Engine (ANE) directly. Existing libraries and community reverse engineering provided ways to try both.
 
-The ANE is particularly interesting. Open-source projects such as [ANEForge](https://github.com/sbryngelson/ANEForge) have demonstrated complete ResNet-18 and ResNet-50 inference, alongside other neural-network workloads. They also make it possible to compile and execute programs directly on the ANE, giving developers more control over where computation runs.
+That led to the next question: **how much matrix-computing power does an M2 MacBook Air offer, and how much can these software paths deliver?** This benchmark compares compute references with measured matrix-multiplication (GEMM) throughput across square matrices from 64 × 64 to 4096 × 4096. Throughput is reported in TFLOPS—trillions of floating-point operations per second.
 
-How much of that potential translates into practical performance? This article starts with a compute reference for each engine: theoretical rates for CPU/NEON and GPU, measured instruction throughput for AMX, and Apple's nominal rate for ANE. GEMM benchmarks on AMX, GPU and ANE then show how much throughput each delivers on square matrices from 64 to 4096, and how packing and arithmetic precision affect the results.
+**Software paths to the hardware**
 
-Three findings stand out:
+| Hardware | Software entry point | What it provides in this benchmark |
+|---|---|---|
+| GPU | [Metal and MPS](https://developer.apple.com/documentation/metalperformanceshaders/mpsmatrixmultiplication) | Apple's official GPU compute stack; MPS supplies the matrix-multiplication implementation. |
+| AMX | [Accelerate: BNNS and BLAS](https://developer.apple.com/documentation/accelerate) | Library matrix operations that were verified to execute on AMX in the N=2048 tests. |
+| AMX | [Corsix's AMX instruction documentation](https://github.com/corsix/amx) | Reverse-engineered instructions used by the custom matrix kernel and instruction-throughput tests. |
+| ANE | [ANEForge](https://github.com/sbryngelson/ANEForge) | Direct compilation and execution of supported tensor graphs, used here for matrix multiplication. |
 
-- **ANE constant-B reaches 8.54 TFLOPS at N=2048**, compared with 2.34 TFLOPS for GPU.
-- **Prepacked AMX reaches 2.93 TFLOPS**, falling to 2.36 TFLOPS when A/B packing is included. Both use FP16 accumulation.
-- **AMX with FP32 accumulation reaches 88% of its measured arithmetic reference.** Input precision alone is not enough to choose that reference.
+[Core ML can also use ANE](https://developer.apple.com/documentation/coreml/mlcomputeunits/all) for model inference. ANEForge offers a more direct route for supported tensor computations outside that deployment flow; its operation and shape constraints differ from writing general-purpose GPU kernels.
+
+For **2048 × 2048 matrices**, three findings stand out:
+
+- **ANE reaches 8.54 TFLOPS (constant B), AMX 2.93 TFLOPS (prepacked), and GPU 2.34 TFLOPS.**
+- These results reach roughly **54%, 90% and 66%** of their respective reference rates.
+- **Input precision alone does not determine the right reference.** The precision used to add up the products matters too.
 
 ## 1. Compute references
 
-A fused multiply-add counts as two operations:
-
-```text
-GEMM TFLOPS = 2 × M × N × K / elapsed_seconds / 10^12
-% of reference = Measured TFLOPS / Reference T/s
-```
+The CPU/NEON and GPU figures below are theoretical estimates, the AMX figures are measured instruction throughput, and the ANE figure is Apple's published nominal rate. T/s means trillions of operations per second. In `FP16 × FP16 → FP32`, the arrow indicates the precision used to add up the products, called *accumulation*.
 
 | Path / mode | Reference | Type of reference |
 |---|---:|---|
@@ -28,83 +32,84 @@ GEMM TFLOPS = 2 × M × N × K / elapsed_seconds / 10^12
 | 10-core GPU | 3.57 T/s | Architecture/clock-based reference estimate |
 | ANE | 15.80 T/s | Apple's published nominal operation rate |
 
-The GPU estimate is `10 × 256 × 1.395 GHz ≈ 3.57 T/s`. Apple's nominal **15.80 T/s** ANE figure does not specify accumulation precision. NEON provides a theoretical reference; the measured GEMM paths here are AMX, GPU and ANE.
+A **single P-core's FP32 NEON reference is 0.112 T/s**; AMX and GPU references are in the low single-digit T/s range, while ANE's nominal rate is 15.80 T/s. This gives the scale of the matrix-computing capability beyond one CPU core, without treating the different precision modes as equivalent.
 
-## 2. GEMM: measured hardware performance
+The GPU estimate is `10 × 256 × 1.395 GHz ≈ 3.57 T/s`. Apple's ANE figure does not specify accumulation precision.
 
-AMX is tested with a custom kernel and two Apple library interfaces: **BNNS** for FP16 inputs and **Accelerate SGEMM** for FP32. The GPU uses **Metal Performance Shaders (MPS)**; the ANE uses **ANEForge**, with B either constant in the compiled graph or supplied at runtime.
+For matrix multiplication, each multiply-and-add counts as two operations:
 
-**M=N=K=2048, batch=1.** Mean synchronous wall time with reused buffers, after 10 warmups and 10 samples of 10 calls.
+```text
+GEMM TFLOPS = 2 × M × N × K / elapsed_seconds / 10^12
+% of reference = Measured TFLOPS / Reference T/s × 100
+```
 
-| Hardware / implementation, N=2048 | Arithmetic / I/O | Reference T/s | Mean ms | TFLOPS | % of reference |
+Here the matrices are square, so M=N=K is the number of rows and columns.
+
+## 2. Matrix multiplication benchmark results
+
+I tested available high-performance GEMM implementations through the software paths above, including both the custom AMX kernel and Apple library implementations.
+
+AMX *packing* rearranges inputs into the memory layout the kernel needs; *prepacked* excludes this preparation from timing. ANE uses either one matrix fixed in the compiled program (*constant B*) or both matrices supplied at execution (*runtime inputs*).
+
+**Two 2048 × 2048 matrices per call (M=N=K=2048, batch=1).** Times include waiting for completion and reuse the same buffers: 10 warmup calls, then 10 samples of 10 calls each.
+
+| Hardware / implementation, N=2048 | Input / accumulation precision | Reference rate (T/s) | Mean time (ms) ↓ | Throughput (TFLOPS) ↑ | Throughput / reference (%) |
 |---|---|---:|---:|---:|---:|
-| AMX GEMM, pack A+B each call | FP16 × FP16 → FP16 | 3.27 | 7.28 | 2.36 | 72.1% |
-| AMX GEMM, A+B prepacked | FP16 × FP16 → FP16 | 3.27 | 5.87 | 2.93 | 89.5% |
+| AMX GEMM, packing included | FP16 × FP16 → FP16 | 3.27 | 7.28 | 2.36 | 72.1% |
+| AMX GEMM, prepacked | FP16 × FP16 → FP16 | 3.27 | 5.87 | 2.93 | 89.5% |
 | AMX / BNNS | FP16 × FP16 → FP32 | 1.63 | 12.01 | 1.43 | 88.0% |
 | AMX / Accelerate SGEMM | FP32 × FP32 → FP32 | 1.63 | 14.80 | 1.16 | 71.3% |
 | GPU / MPS | FP16 I/O | 3.57 | 7.33 | 2.34 | 65.7% |
 | ANE / constant B | FP16 I/O | 15.80 | 2.01 | 8.54 | 54.1% |
-| ANE / runtime A+B | FP16 I/O | 15.80 | 3.29 | 5.22 | 33.0% |
+| ANE / runtime inputs | FP16 I/O | 15.80 | 3.29 | 5.22 | 33.0% |
 
-“FP16 I/O” specifies buffer precision; GPU/ANE accumulation precision is unverified. Reference rates are measured for AMX, estimated for GPU and vendor-nominal for ANE, so the percentages are not a uniform utilization metric.
+ANE delivers the highest throughput in both input modes. AMX with packing included is close to GPU; preparing the inputs beforehand gives AMX a lead.
+
+“FP16 I/O” describes the input and output values; GPU/ANE accumulation precision is unverified. The percentages use the reference types in Section 1, rather than a common measure of hardware utilization.
 
 ### Performance across matrix sizes
 
 ![GEMM throughput across seven matrix sizes](https://raw.githubusercontent.com/ToExperienceMore/apple-m2-gemm-benchmarks/main/article/figures/gemm-size-sweep.png)
 
-CPU/NEON is the single-P-core theoretical reference (0.112 TFLOPS, dashed). Measured curves use AMX with A/B packing, GPU via MPS, and ANE with constant B.
+The dashed line is the **single P-core FP32 NEON theoretical reference**. Measured curves show AMX including input packing, GPU via MPS, and ANE with one input matrix fixed in the program.
 
-GPU throughput rises with matrix size. At larger sizes, ANE leads these implementations. Several paths lose throughput at N=4096; the cause remains to be investigated.
+GPU throughput rises with matrix size, and ANE leads at larger sizes in these tests. Several implementations lose throughput at 4096 × 4096; the cause remains to be investigated.
 
-### Sample variability
+### Variation across repeated measurements
 
-![Mean latency and all ten recorded samples for N=2048](https://raw.githubusercontent.com/ToExperienceMore/apple-m2-gemm-benchmarks/main/article/figures/gemm-2048-latency.png)
+![Mean latency and all ten recorded samples for 2048 × 2048 matrices](https://raw.githubusercontent.com/ToExperienceMore/apple-m2-gemm-benchmarks/main/article/figures/gemm-2048-latency.png)
 
-AMX with packing and GPU are close: **7.28 ms** versus **7.33 ms**, with overlapping sample ranges.
+Including input packing, AMX takes **7.28 ms**, close to the GPU's **7.33 ms**. Their sample ranges overlap.
 
-## 3. How the hardware was tested
+## 3. How the benchmarks were run
 
 - **Hardware:** MacBook Air M2, 4 performance + 4 efficiency CPU cores, 10-core GPU, 16 GB memory.
-- **Inputs:** identical seeded FP16 matrices, converted to FP32 for SGEMM. Buffers are reused without cache flushes; runtime A+B supplies both as inputs with fixed contents during timing.
-- **Threads:** best mean per size from BNNS 1/4/8 threads and custom AMX 1/4 workers; SGEMM uses `VECLIB_MAXIMUM_THREADS=8`.
+- **Inputs:** the same reproducible random FP16 values for every implementation, converted to FP32 for SGEMM. Buffers are reused without clearing caches. Even when both ANE inputs are passed at execution, their values stay unchanged during timing.
+- **Threads:** BNNS is tested with 1, 4 and 8 threads; custom AMX with 1 and 4 workers. Results show the fastest mean at each matrix size. SGEMM uses `VECLIB_MAXIMUM_THREADS=8`.
 
-Allocation, compilation, initial copies and validation are outside timing. BNNS/SGEMM include library-internal packing. MPS includes commit and completion waits, with encoding before each sample. ANE uses synchronous native execution on resident buffers.
+Timing excludes memory allocation, compilation, initial data copies and correctness checks. BNNS/SGEMM timing includes any input rearrangement inside the libraries. MPS timing includes submitting prepared GPU commands and waiting for completion. ANE timing covers native execution and completion using buffers already in place.
 
-## 4. AMX: packing and accumulation precision
+[SiliconScope](https://github.com/ToExperienceMore/apple-m2-gemm-benchmarks/blob/main/evidence/README.md#watching-engine-activity-with-siliconscope) provides a live view of CPU, GPU and ANE activity while the workload runs. AMX execution and precision were checked separately through sampling, disassembly and breakpoints; the [verification guide](https://github.com/ToExperienceMore/apple-m2-gemm-benchmarks/blob/main/evidence/README.md) contains the detailed records and reproduction steps.
 
-### Packing cost
+## 4. Why accumulation precision matters
 
-The custom AMX kernel computes 32×64 output tiles. Packing arranges A in 32-row panels and B in 64-column panels for its outer-product loop. The first row includes this packing on every call; the prepacked row reuses both packed matrices. Both include GEMM loads and C stores.
+**FP16 inputs do not necessarily mean FP16 accumulation.** Each output value is a sum of products, and the running sum can use a different precision from the inputs.
 
-### FP16 inputs, FP32 accumulation
+BNNS reaches **1.43 TFLOPS** at N=2048. Comparing it with the **3.27 T/s** AMX reference for FP16 accumulation gives about **44%**. But runtime checks confirmed that BNNS uses **FP32 accumulation**. Its matching instruction reference is **1.63 T/s**, so it reaches **88%** of that rate. The input type alone would have led to the wrong conclusion about how much of the arithmetic capacity was being used.
 
-The AMX path through BNNS reaches **1.43 TFLOPS** at N=2048. Dividing by the **3.27 T/s** FP16-accumulation reference gives **44%**, but FP16 inputs do not imply FP16 accumulation.
+The checks also confirmed FP32 AMX calculations for SGEMM and FP16 accumulation for the custom kernel. Instruction modes and debugger records are in the [execution evidence](https://github.com/ToExperienceMore/apple-m2-gemm-benchmarks/blob/main/evidence/README.md#detailed-execution-path-verification).
 
-Sampling located the hotspot in `libBNNS.dylib`. A runtime breakpoint captured:
+### The precision tradeoff
 
-```text
-instruction:      0x002012a8 → AMX_MATFP(x8)
-x8:               0x00000c0000000000
-(x8 >> 42) & 0xf:  3
-```
+At N=2048, the custom AMX kernel with FP16 accumulation has **0.65% relative L2 error** against an FP32 reference, compared with roughly **0.02–0.03%** for the other implementations. Relative L2 error measures the overall output difference relative to the reference. The faster custom AMX result comes with a larger measured error.
 
-[MATFP mode 3](https://github.com/corsix/amx/blob/main/matfp.md) means FP16 inputs with **FP32 accumulation**. The relevant measured reference is therefore **1.63 T/s**, and this AMX implementation achieves **88%** of it. A CPU library call can execute on AMX; the API name and input type alone do not identify the arithmetic.
+All implementations pass their configured correctness checks. The [validation guide](https://github.com/ToExperienceMore/apple-m2-gemm-benchmarks/blob/main/README.md#numerical-validation) gives the reference calculations and tolerances.
 
-SGEMM was verified as AMX `FMA32`; the custom kernel uses `MATFP` mode 2 for FP16 accumulation. The GPU path records command-buffer timestamps; ANE execution requires device mask `0x4`. The [sampling, disassembly and runtime records](https://github.com/ToExperienceMore/apple-m2-gemm-benchmarks/blob/main/evidence/README.md) document these paths.
+## 5. What this benchmark shows
 
-For a live view of CPU, GPU and ANE activity while a workload runs, see [SiliconScope and the example screenshot](../evidence/README.md#watching-engine-activity-with-siliconscope).
+**AMX, GPU and ANE all have usable compute paths, and each delivered multi-TFLOPS GEMM throughput on this M2.** The measurements show how much of their matrix-computing capability these paths deliver, with results varying by input preparation and execution mode.
 
-## 5. Precision and error
-
-At N=2048, the custom FP16-accumulating AMX kernel has **0.65% relative L2 error** against FP32, compared with roughly **0.02–0.03%** for the other paths. The faster AMX result therefore comes with lower accumulation precision.
-
-All implementations pass their configured checks. The custom kernel is checked against sequential hardware FP16 FMA; the others use FP32 references, with additional FP64 spot checks for ANE. Exact tolerances and error records are in the [validation guide](https://github.com/ToExperienceMore/apple-m2-gemm-benchmarks/blob/main/README.md#numerical-validation).
-
-## 6. Reproduce and extend
-
-The [GitHub repository](https://github.com/ToExperienceMore/apple-m2-gemm-benchmarks)
-
-The next step is to investigate the gap between measured GEMM throughput and each engine’s compute reference: what limits performance, and how much headroom remains for optimization?
+The remaining gaps to the reference rates are starting points for bottleneck investigation, not guaranteed recoverable speedups. The next step is to examine what limits each implementation, especially at larger matrix sizes. The [GitHub README](https://github.com/ToExperienceMore/apple-m2-gemm-benchmarks/blob/main/README.md#quick-start) provides build and benchmark commands; [detailed measurements](https://github.com/ToExperienceMore/apple-m2-gemm-benchmarks/blob/main/article/detailed-measurements.md) support further analysis.
 
 ## References
 

@@ -30,6 +30,8 @@ Decode: instruction base `0x201000`, opcode 21, GPR 8 → `AMX_MATFP(x8)`. Lane 
 
 ### Custom FP16 GEMM (AMX)
 
+The custom kernel computes 32×64 output tiles. Packing arranges the first input in 32-row panels and the second in 64-column panels for its outer-product loop. See the [kernel source](../src/amx/gemm_fp16.cpp) for the memory layout.
+
 `fp16-gemm-disassembly.txt` records the compiled tile loop. Its two MATFP operands have lane mode 2: FP16 X/Y/Z on M2. The source also specifies this mode explicitly; validation checks sequential hardware FP16 FMA output.
 
 ### MPS and ANE
