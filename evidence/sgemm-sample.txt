@@ -1,0 +1,153 @@
+Analysis of sampling native-extra (pid 34967) every 1 millisecond
+Process:         native-extra [34967]
+Path:            ./native-extra
+Load Address:    0x10225c000
+Identifier:      native-extra
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  Python [34966]
+Target Type:     live task
+
+Date/Time:       2026-09-10 19:31:15.329 +0200
+Launch Time:     2026-09-10 19:31:15.063 +0200
+OS Version:      macOS 26.0.1 (25A362)
+Report Version:  7
+Analysis Tool:   sample
+
+Physical footprint:         81.8M
+Physical footprint (peak):  81.8M
+Idle exit:                  untracked
+----
+
+Call graph:
+    1702 Thread_4625412: Main Thread
+      1702 start  (in dyld) + 7184  [0x191245d54]
+        1702 main  (in native-extra) + 4044  [0x10225d8dc]
+          1702 cblas_sgemm  (in libBLAS.dylib) + 100  [0x19281e824]
+            1701 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x4dfbd8  [0x192562bd8]
+            + 1352 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x3b991c  [0x19243c91c]
+            + ! 1352 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x331db8  [0x1923b4db8]
+            + !   1349 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x3320d8  [0x1923b50d8]
+            + !   : 986 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x339bd4  [0x1923bcbd4]
+            + !   : 165 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x339bc8  [0x1923bcbc8]
+            + !   : 152 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x339bdc  [0x1923bcbdc]
+            + !   : 22 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x339bb0  [0x1923bcbb0]
+            + !   : 8 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x339bfc  [0x1923bcbfc]
+            + !   : | 4 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x33a3a8  [0x1923bd3a8]
+            + !   : | 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x33a2e8  [0x1923bd2e8]
+            + !   : | 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x33a320  [0x1923bd320]
+            + !   : | 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x33a3bc  [0x1923bd3bc]
+            + !   : | 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x33a780  [0x1923bd780]
+            + !   : 4 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x339bb8  [0x1923bcbb8]
+            + !   : 3 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x339be8  [0x1923bcbe8]
+            + !   : 2 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x33ac3c  [0x1923bdc3c]
+            + !   : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x339b88  [0x1923bcb88]
+            + !   : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x339be0  [0x1923bcbe0]
+            + !   : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x33a788  [0x1923bd788]
+            + !   : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x33abdc  [0x1923bdbdc]
+            + !   : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x33abf0  [0x1923bdbf0]
+            + !   : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x33ac24  [0x1923bdc24]
+            + !   : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x33ac50  [0x1923bdc50]
+            + !   1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x331e2c  [0x1923b4e2c]
+            + !   1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x332080  [0x1923b5080]
+            + !   1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x3320ec  [0x1923b50ec]
+            + 205 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x3b98f4  [0x19243c8f4]
+            + ! 205 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24793c  [0x1922ca93c]
+            + !   205 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x243f34  [0x1922c6f34]
+            + !     155 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24b848  [0x1922ce848]
+            + !     : 20 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x248a18  [0x1922cba18]
+            + !     : 16 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x2489cc  [0x1922cb9cc]
+            + !     : 15 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x2489e4  [0x1922cb9e4]
+            + !     : 13 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x248988  [0x1922cb988]
+            + !     : 12 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x2489f4  [0x1922cb9f4]
+            + !     : 11 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x2489b8  [0x1922cb9b8]
+            + !     : 10 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x248a04  [0x1922cba04]
+            + !     : 8 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x2489a8  [0x1922cb9a8]
+            + !     : 7 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24899c  [0x1922cb99c]
+            + !     : 5 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x248a30  [0x1922cba30]
+            + !     : 4 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x2489ac  [0x1922cb9ac]
+            + !     : 4 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x2489fc  [0x1922cb9fc]
+            + !     : 3 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24895c  [0x1922cb95c]
+            + !     : 3 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x248980  [0x1922cb980]
+            + !     : 3 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x248984  [0x1922cb984]
+            + !     : 3 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x248aa0  [0x1922cbaa0]
+            + !     : 2 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x2482a8  [0x1922cb2a8]
+            + !     : 2 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x2489d4  [0x1922cb9d4]
+            + !     : 2 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x248a34  [0x1922cba34]
+            + !     : 2 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x248a50  [0x1922cba50]
+            + !     : 2 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x248a68  [0x1922cba68]
+            + !     : 2 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x248a80  [0x1922cba80]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24897c  [0x1922cb97c]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x2489c4  [0x1922cb9c4]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x2489e8  [0x1922cb9e8]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x248a1c  [0x1922cba1c]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x248a44  [0x1922cba44]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x248a90  [0x1922cba90]
+            + !     26 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24b82c  [0x1922ce82c]
+            + !     : 11 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24a890  [0x1922cd890]
+            + !     : 3 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24a4e0  [0x1922cd4e0]
+            + !     : 2 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24a4ac  [0x1922cd4ac]
+            + !     : 2 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24a4cc  [0x1922cd4cc]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x249ff0  [0x1922ccff0]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24a000  [0x1922cd000]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24a430  [0x1922cd430]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24a450  [0x1922cd450]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24a454  [0x1922cd454]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24a458  [0x1922cd458]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24a490  [0x1922cd490]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24a888  [0x1922cd888]
+            + !     12 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24b858  [0x1922ce858]
+            + !     : 2 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x249870  [0x1922cc870]
+            + !     : 2 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x249944  [0x1922cc944]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x249844  [0x1922cc844]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x249848  [0x1922cc848]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24985c  [0x1922cc85c]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x249874  [0x1922cc874]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x249888  [0x1922cc888]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x249898  [0x1922cc898]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x2498d4  [0x1922cc8d4]
+            + !     : 1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24990c  [0x1922cc90c]
+            + !     4 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24b7e8  [0x1922ce7e8]
+            + !     2 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24b780  [0x1922ce780]
+            + !     2 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24b834  [0x1922ce834]
+            + !     2 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24b884  [0x1922ce884]
+            + !     1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24b7e0  [0x1922ce7e0]
+            + !     1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24b864  [0x1922ce864]
+            + 144 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x3b98bc  [0x19243c8bc]
+            +   143 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x2470d8  [0x1922ca0d8]
+            +   : 62 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24e104  [0x1922d1104]
+            +   : 46 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24e018  [0x1922d1018]
+            +   : 19 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24e020  [0x1922d1020]
+            +   : 7 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24e114  [0x1922d1114]
+            +   : 3 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24e108  [0x1922d1108]
+            +   : 2 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24e024  [0x1922d1024]
+            +   : 2 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24e028  [0x1922d1028]
+            +   : 2 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24e044  [0x1922d1044]
+            +   1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x2470f8  [0x1922ca0f8]
+            +     1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24d96c  [0x1922d096c]
+            1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x79a980  [0x19281d980]
+              1 ???  (in libBLAS.dylib)  load address 0x192083000 + 0x79aaf4  [0x19281daf4]
+
+Total number in stack (recursive counted multiple, when >=5):
+
+Sort by top of stack, same collapsed (when >= 5):
+        ???  (in libBLAS.dylib)  load address 0x192083000 + 0x339bd4  [0x1923bcbd4]        986
+        ???  (in libBLAS.dylib)  load address 0x192083000 + 0x339bc8  [0x1923bcbc8]        165
+        ???  (in libBLAS.dylib)  load address 0x192083000 + 0x339bdc  [0x1923bcbdc]        152
+        ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24e104  [0x1922d1104]        62
+        ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24e018  [0x1922d1018]        46
+        ???  (in libBLAS.dylib)  load address 0x192083000 + 0x339bb0  [0x1923bcbb0]        22
+        ???  (in libBLAS.dylib)  load address 0x192083000 + 0x248a18  [0x1922cba18]        20
+        ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24e020  [0x1922d1020]        19
+        ???  (in libBLAS.dylib)  load address 0x192083000 + 0x2489cc  [0x1922cb9cc]        16
+        ???  (in libBLAS.dylib)  load address 0x192083000 + 0x2489e4  [0x1922cb9e4]        15
+        ???  (in libBLAS.dylib)  load address 0x192083000 + 0x248988  [0x1922cb988]        13
+        ???  (in libBLAS.dylib)  load address 0x192083000 + 0x2489f4  [0x1922cb9f4]        12
+        ???  (in libBLAS.dylib)  load address 0x192083000 + 0x2489b8  [0x1922cb9b8]        11
+        ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24a890  [0x1922cd890]        11
+        ???  (in libBLAS.dylib)  load address 0x192083000 + 0x248a04  [0x1922cba04]        10
+        ???  (in libBLAS.dylib)  load address 0x192083000 + 0x2489a8  [0x1922cb9a8]        8
+        ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24899c  [0x1922cb99c]        7
+        ???  (in libBLAS.dylib)  load address 0x192083000 + 0x24e114  [0x1922d1114]        7
+        ???  (in libBLAS.dylib)  load address 0x192083000 + 0x248a30  [0x1922cba30]        5

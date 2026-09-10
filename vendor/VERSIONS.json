@@ -1,0 +1,12 @@
+{
+  "ANEForge": {
+    "url": "https://github.com/sbryngelson/ANEForge",
+    "commit": "67c1d4861c562b0168d60c7a5677840e2cad44ea",
+    "selection": "tracked aneforge/ package plus metadata; original checkout clean"
+  },
+  "corsix-amx": {
+    "url": "https://github.com/corsix/amx",
+    "commit": "483714bb051da088d08a66724b22dd08a5db3c99",
+    "selection": "aarch64.h, perf.c, perf_kernels.py, LICENSE"
+  }
+}

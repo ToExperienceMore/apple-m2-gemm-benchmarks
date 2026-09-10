@@ -1,0 +1,123 @@
+(lldb) target create "gemm-comparison/native"
+Current executable set to './gemm-comparison/native' (arm64).
+(lldb) settings set -- target.run-args  "cpu" "2048" "1" "1" "1" "1" "gemm-comparison/results/2048" "gemm-comparison/path-audit/debug.bin" "gemm-comparison/path-audit/debug.json"
+(lldb) breakpoint set -n BNNSMatMul
+Breakpoint 1: where = libBNNS.dylib`BNNSMatMul, address = 0x000000018e0cc6dc
+(lldb) run
+Process 34373 launched: './gemm-comparison/native' (arm64)
+Process 34373 stopped
+* thread #1, queue = 'com.apple.main-thread', stop reason = breakpoint 1.1
+    frame #0: 0x000000019f2046dc libBNNS.dylib`BNNSMatMul
+libBNNS.dylib`BNNSMatMul:
+->  0x19f2046dc <+0>:  pacibsp 
+    0x19f2046e0 <+4>:  stp    x24, x23, [sp, #-0x40]!
+    0x19f2046e4 <+8>:  stp    x22, x21, [sp, #0x10]
+    0x19f2046e8 <+12>: stp    x20, x19, [sp, #0x20]
+Target 0: (native) stopped.
+(lldb) disassemble -s 0x19f2b6f80 -c 100 -b
+libBNNS.dylib`___lldb_unnamed_symbol7150:
+    0x19f2b6f80 <+2868>: 0x1e23c001   fcvt   h1, s0
+    0x19f2b6f84 <+2872>: 0x7c1fe401   str    h1, [x0], #-0x2
+    0x19f2b6f88 <+2876>: 0xf1000442   subs   x2, x2, #0x1
+    0x19f2b6f8c <+2880>: 0x54ffff41   b.ne   0x19f2b6f74               ; <+2856>
+    0x19f2b6f90 <+2884>: 0x17ffffd1   b      0x19f2b6ed4               ; <+2696>
+    0x19f2b6f94 <+2888>: 0xb4fffa18   cbz    x24, 0x19f2b6ed4          ; <+2696>
+    0x19f2b6f98 <+2892>: 0x8b0107c1   add    x1, x30, x1, lsl #1
+    0x19f2b6f9c <+2896>: 0x2f00e400   movi   d0, #0000000000000000
+    0x19f2b6fa0 <+2900>: 0xaa1803e2   mov    x2, x24
+    0x19f2b6fa4 <+2904>: 0x8b0004e0   add    x0, x7, x0, lsl #1
+    0x19f2b6fa8 <+2908>: 0x7c402421   ldr    h1, [x1], #0x2
+    0x19f2b6fac <+2912>: 0x1ee24021   fcvt   s1, h1
+    0x19f2b6fb0 <+2916>: 0x1e212800   fadd   s0, s0, s1
+    0x19f2b6fb4 <+2920>: 0x1e23c001   fcvt   h1, s0
+    0x19f2b6fb8 <+2924>: 0x7c002401   str    h1, [x0], #0x2
+    0x19f2b6fbc <+2928>: 0xf1000442   subs   x2, x2, #0x1
+    0x19f2b6fc0 <+2932>: 0x54ffff41   b.ne   0x19f2b6fa8               ; <+2908>
+    0x19f2b6fc4 <+2936>: 0x17ffffc4   b      0x19f2b6ed4               ; <+2696>
+    0x19f2b6fc8 <+2940>: 0x52800000   mov    w0, #0x0                  ; =0 
+    0x19f2b6fcc <+2944>: 0xf85983a8   ldur   x8, [x29, #-0x68]
+    0x19f2b6fd0 <+2948>: 0xf02c4d09   adrp   x9, 362915
+    0x19f2b6fd4 <+2952>: 0xf940f529   ldr    x9, [x9, #0x1e8]
+    0x19f2b6fd8 <+2956>: 0xf9400129   ldr    x9, [x9]
+    0x19f2b6fdc <+2960>: 0xeb08013f   cmp    x9, x8
+    0x19f2b6fe0 <+2964>: 0x54000121   b.ne   0x19f2b7004               ; <+3000>
+    0x19f2b6fe4 <+2968>: 0x911143ff   add    sp, sp, #0x450
+    0x19f2b6fe8 <+2972>: 0xa9457bfd   ldp    x29, x30, [sp, #0x50]
+    0x19f2b6fec <+2976>: 0xa9444ff4   ldp    x20, x19, [sp, #0x40]
+    0x19f2b6ff0 <+2980>: 0xa94357f6   ldp    x22, x21, [sp, #0x30]
+    0x19f2b6ff4 <+2984>: 0xa9425ff8   ldp    x24, x23, [sp, #0x20]
+    0x19f2b6ff8 <+2988>: 0xa94167fa   ldp    x26, x25, [sp, #0x10]
+    0x19f2b6ffc <+2992>: 0xa8c66ffc   ldp    x28, x27, [sp], #0x60
+    0x19f2b7000 <+2996>: 0xd65f0fff   retab  
+    0x19f2b7004 <+3000>: 0x9427177e   bl     0x19fc7cdfc               ; symbol stub for: __stack_chk_fail
+
+libBNNS.dylib`___lldb_unnamed_symbol7151:
+    0x19f2b7008 <+0>:    0xf100081f   cmp    x0, #0x2
+    0x19f2b700c <+4>:    0x54000223   b.lo   0x19f2b7050               ; <+72>
+    0x19f2b7010 <+8>:    0xd3565428   lsl    x8, x1, #42
+    0x19f2b7014 <+12>:   0x8b027508   add    x8, x8, x2, lsl #29
+    0x19f2b7018 <+16>:   0xaa0603e9   mov    x9, x6
+    0x19f2b701c <+20>:   0xaa0303ea   mov    x10, x3
+    0x19f2b7020 <+24>:   0x9240dd4b   and    x11, x10, #0xffffffffffffff
+    0x19f2b7024 <+28>:   0x0020100b   .long  0x0020100b                ; unknown opcode
+    0x19f2b7028 <+32>:   0x8b040063   add    x3, x3, x4
+    0x19f2b702c <+36>:   0x9240dd2b   and    x11, x9, #0xffffffffffffff
+    0x19f2b7030 <+40>:   0x0020102b   .long  0x0020102b                ; unknown opcode
+    0x19f2b7034 <+44>:   0x8b0700c6   add    x6, x6, x7
+    0x19f2b7038 <+48>:   0x002012a8   .long  0x002012a8                ; unknown opcode
+    0x19f2b703c <+52>:   0xd1000400   sub    x0, x0, #0x1
+    0x19f2b7040 <+56>:   0x8b04014a   add    x10, x10, x4
+    0x19f2b7044 <+60>:   0x8b070129   add    x9, x9, x7
+    0x19f2b7048 <+64>:   0xf100041f   cmp    x0, #0x1
+    0x19f2b704c <+68>:   0x54fffea8   b.hi   0x19f2b7020               ; <+24>
+    0x19f2b7050 <+72>:   0xf94003e8   ldr    x8, [sp]
+    0x19f2b7054 <+76>:   0x91010069   add    x9, x3, #0x40
+    0x19f2b7058 <+80>:   0xeb05013f   cmp    x9, x5
+    0x19f2b705c <+84>:   0x540000a2   b.hs   0x19f2b7070               ; <+104>
+    0x19f2b7060 <+88>:   0xd2800009   mov    x9, #0x0                  ; =0 
+    0x19f2b7064 <+92>:   0x9240dc6a   and    x10, x3, #0xffffffffffffff
+    0x19f2b7068 <+96>:   0x0020100a   .long  0x0020100a                ; unknown opcode
+    0x19f2b706c <+100>:  0x14000007   b      0x19f2b7088               ; <+128>
+    0x19f2b7070 <+104>:  0xcb050069   sub    x9, x3, x5
+    0x19f2b7074 <+108>:  0xd10100aa   sub    x10, x5, #0x40
+    0x19f2b7078 <+112>:  0x9240dd4a   and    x10, x10, #0xffffffffffffff
+    0x19f2b707c <+116>:  0x0020100a   .long  0x0020100a                ; unknown opcode
+    0x19f2b7080 <+120>:  0xd376d529   lsl    x9, x9, #10
+    0x19f2b7084 <+124>:  0x91404129   add    x9, x9, #0x10, lsl #12    ; =0x10000 
+    0x19f2b7088 <+128>:  0x910100ca   add    x10, x6, #0x40
+    0x19f2b708c <+132>:  0xcb0800cb   sub    x11, x6, x8
+    0x19f2b7090 <+136>:  0x9101016b   add    x11, x11, #0x40
+    0x19f2b7094 <+140>:  0xd101010c   sub    x12, x8, #0x40
+    0x19f2b7098 <+144>:  0xeb08015f   cmp    x10, x8
+    0x19f2b709c <+148>:  0x9a8c30c8   csel   x8, x6, x12, lo
+    0x19f2b70a0 <+152>:  0x9a8b33ea   csel   x10, xzr, x11, lo
+    0x19f2b70a4 <+156>:  0x9240dd08   and    x8, x8, #0xffffffffffffff
+    0x19f2b70a8 <+160>:  0x00201028   .long  0x00201028                ; unknown opcode
+    0x19f2b70ac <+164>:  0xd3638848   lsl    x8, x2, #29
+    0x19f2b70b0 <+168>:  0x8b01a908   add    x8, x8, x1, lsl #42
+    0x19f2b70b4 <+172>:  0x8b090108   add    x8, x8, x9
+    0x19f2b70b8 <+176>:  0x8b0a0108   add    x8, x8, x10
+    0x19f2b70bc <+180>:  0x002012a8   .long  0x002012a8                ; unknown opcode
+    0x19f2b70c0 <+184>:  0xd65f03c0   ret    
+
+libBNNS.dylib`___lldb_unnamed_symbol7152:
+    0x19f2b70c4 <+0>:    0xf100081f   cmp    x0, #0x2
+    0x19f2b70c8 <+4>:    0x54000283   b.lo   0x19f2b7118               ; <+84>
+    0x19f2b70cc <+8>:    0xd3565428   lsl    x8, x1, #42
+    0x19f2b70d0 <+12>:   0x52a00229   mov    w9, #0x110000             ; =1114112 
+    0x19f2b70d4 <+16>:   0xb3565429   bfi    x9, x1, #42, #22
+    0x19f2b70d8 <+20>:   0xaa0503ea   mov    x10, x5
+    0x19f2b70dc <+24>:   0xaa0203eb   mov    x11, x2
+    0x19f2b70e0 <+28>:   0xd2e8000c   mov    x12, #0x4000000000000000  ; =4611686018427387904 
+    0x19f2b70e4 <+32>:   0xb340dd6c   bfxil  x12, x11, #0, #56
+    0x19f2b70e8 <+36>:   0x0020100c   .long  0x0020100c                ; unknown opcode
+    0x19f2b70ec <+40>:   0x8b030042   add    x2, x2, x3
+    0x19f2b70f0 <+44>:   0x9240dd4c   and    x12, x10, #0xffffffffffffff
+    0x19f2b70f4 <+48>:   0x0020102c   .long  0x0020102c                ; unknown opcode
+    0x19f2b70f8 <+52>:   0x8b0600a5   add    x5, x5, x6
+    0x19f2b70fc <+56>:   0x002012a8   .long  0x002012a8                ; unknown opcode
+    0x19f2b7100 <+60>:   0x002012a9   .long  0x002012a9                ; unknown opcode
+    0x19f2b7104 <+64>:   0xd1000400   sub    x0, x0, #0x1
+    0x19f2b7108 <+68>:   0x8b03016b   add    x11, x11, x3
+    0x19f2b710c <+72>:   0x8b06014a   add    x10, x10, x6
+(lldb) quit

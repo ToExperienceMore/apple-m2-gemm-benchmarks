@@ -1,0 +1,46 @@
+(lldb) target create "gemm-comparison/native"
+Current executable set to './gemm-comparison/native' (arm64).
+(lldb) settings set -- target.run-args  "cpu" "2048" "1" "1" "1" "1" "gemm-comparison/results/2048" "gemm-comparison/path-audit/debug.bin" "gemm-comparison/path-audit/debug.json"
+(lldb) breakpoint set -n BNNSMatMul
+Breakpoint 1: where = libBNNS.dylib`BNNSMatMul, address = 0x000000018e0cc6dc
+(lldb) run
+Process 35515 launched: './gemm-comparison/native' (arm64)
+Process 35515 stopped
+* thread #1, queue = 'com.apple.main-thread', stop reason = breakpoint 1.1
+    frame #0: 0x000000019f2046dc libBNNS.dylib`BNNSMatMul
+libBNNS.dylib`BNNSMatMul:
+->  0x19f2046dc <+0>:  pacibsp 
+    0x19f2046e0 <+4>:  stp    x24, x23, [sp, #-0x40]!
+    0x19f2046e4 <+8>:  stp    x22, x21, [sp, #0x10]
+    0x19f2046e8 <+12>: stp    x20, x19, [sp, #0x20]
+Target 0: (native) stopped.
+(lldb) breakpoint set -a 0x19f2b7038
+Breakpoint 2: where = libBNNS.dylib`___lldb_unnamed_symbol7151 + 48, address = 0x000000019f2b7038
+(lldb) continue
+Process 35515 resuming
+Process 35515 stopped
+* thread #1, queue = 'com.apple.main-thread', stop reason = breakpoint 2.1
+    frame #0: 0x000000019f2b7038 libBNNS.dylib`___lldb_unnamed_symbol7151 + 48
+libBNNS.dylib`___lldb_unnamed_symbol7151:
+->  0x19f2b7038 <+48>: .long  0x002012a8                ; unknown opcode
+    0x19f2b703c <+52>: sub    x0, x0, #0x1
+    0x19f2b7040 <+56>: add    x10, x10, x4
+    0x19f2b7044 <+60>: add    x9, x9, x7
+Target 0: (native) stopped.
+(lldb) register read x8
+      x8 = 0x00000c0000000000
+(lldb) bt
+* thread #1, queue = 'com.apple.main-thread', stop reason = breakpoint 2.1
+  * frame #0: 0x000000019f2b7038 libBNNS.dylib`___lldb_unnamed_symbol7151 + 48
+    frame #1: 0x000000019f7852f0 libBNNS.dylib`___lldb_unnamed_symbol12374 + 5556
+    frame #2: 0x000000019f783cf0 libBNNS.dylib`___lldb_unnamed_symbol12373 + 1432
+    frame #3: 0x000000019edcd46c libBNNS.dylib`___lldb_unnamed_symbol1897 + 2296
+    frame #4: 0x000000019f76d5cc libBNNS.dylib`___lldb_unnamed_symbol12224 + 536
+    frame #5: 0x000000019f76d0f4 libBNNS.dylib`___lldb_unnamed_symbol12220 + 460
+    frame #6: 0x000000019edc43a4 libBNNS.dylib`___lldb_unnamed_symbol1844 + 1336
+    frame #7: 0x000000019edbf534 libBNNS.dylib`___lldb_unnamed_symbol1834 + 608
+    frame #8: 0x000000019edc55b8 libBNNS.dylib`___lldb_unnamed_symbol1851 + 108
+    frame #9: 0x000000019f204944 libBNNS.dylib`BNNSMatMul + 616
+    frame #10: 0x00000001000013d4 native`main + 2756
+    frame #11: 0x0000000191245d54 dyld`start + 7184
+(lldb) quit

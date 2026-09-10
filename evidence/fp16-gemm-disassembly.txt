@@ -1,0 +1,40 @@
+(lldb) target create "gemm-fp16-amx/gemm"
+Current executable set to './gemm-fp16-amx/gemm' (arm64).
+(lldb) disassemble -n tile -b
+gemm`tile:
+gemm[0x100001ce8] <+0>:   0xd2c10068   mov    x8, #0x80300000000        ; =8808977924096 
+gemm[0x100001cec] <+4>:   0x002012a8   .long  0x002012a8                ; unknown opcode
+gemm[0x100001cf0] <+8>:   0xd2a00208   mov    x8, #0x100000             ; =1048576 
+gemm[0x100001cf4] <+12>:  0xf2c10068   movk   x8, #0x803, lsl #32
+gemm[0x100001cf8] <+16>:  0x002012a8   .long  0x002012a8                ; unknown opcode
+gemm[0x100001cfc] <+20>:  0x7100047f   cmp    w3, #0x1
+gemm[0x100001d00] <+24>:  0x540001cb   b.lt   0x100001d38               ; <+80>
+gemm[0x100001d04] <+28>:  0x2a0303e8   mov    w8, w3
+gemm[0x100001d08] <+32>:  0xd2c10009   mov    x9, #0x80000000000        ; =8796093022208 
+gemm[0x100001d0c] <+36>:  0xd2a0022a   mov    x10, #0x110000            ; =1114112 
+gemm[0x100001d10] <+40>:  0xf2c1000a   movk   x10, #0x800, lsl #32
+gemm[0x100001d14] <+44>:  0xb242002b   orr    x11, x1, #0x4000000000000000
+gemm[0x100001d18] <+48>:  0x0020100b   .long  0x0020100b                ; unknown opcode
+gemm[0x100001d1c] <+52>:  0x00201020   .long  0x00201020                ; unknown opcode
+gemm[0x100001d20] <+56>:  0x002012a9   .long  0x002012a9                ; unknown opcode
+gemm[0x100001d24] <+60>:  0x002012aa   .long  0x002012aa                ; unknown opcode
+gemm[0x100001d28] <+64>:  0x91010000   add    x0, x0, #0x40
+gemm[0x100001d2c] <+68>:  0x91020021   add    x1, x1, #0x80
+gemm[0x100001d30] <+72>:  0xf1000508   subs   x8, x8, #0x1
+gemm[0x100001d34] <+76>:  0x54ffff01   b.ne   0x100001d14               ; <+44>
+gemm[0x100001d38] <+80>:  0xd2800008   mov    x8, #0x0                  ; =0 
+gemm[0x100001d3c] <+84>:  0x937f7c69   sbfiz  x9, x3, #1, #32
+gemm[0x100001d40] <+88>:  0x5280040a   mov    w10, #0x20                ; =32 
+gemm[0x100001d44] <+92>:  0xd2e0400b   mov    x11, #0x200000000000000   ; =144115188075855872 
+gemm[0x100001d48] <+96>:  0xaa02010c   orr    x12, x8, x2
+gemm[0x100001d4c] <+100>: 0x002010ac   .long  0x002010ac                ; unknown opcode
+gemm[0x100001d50] <+104>: 0x9101004c   add    x12, x2, #0x40
+gemm[0x100001d54] <+108>: 0xaa0c010c   orr    x12, x8, x12
+gemm[0x100001d58] <+112>: 0xb248018c   orr    x12, x12, #0x100000000000000
+gemm[0x100001d5c] <+116>: 0x002010ac   .long  0x002010ac                ; unknown opcode
+gemm[0x100001d60] <+120>: 0x8b090042   add    x2, x2, x9
+gemm[0x100001d64] <+124>: 0x8b0b0108   add    x8, x8, x11
+gemm[0x100001d68] <+128>: 0xf100054a   subs   x10, x10, #0x1
+gemm[0x100001d6c] <+132>: 0x54fffee1   b.ne   0x100001d48               ; <+96>
+gemm[0x100001d70] <+136>: 0xd65f03c0   ret    
+(lldb) quit

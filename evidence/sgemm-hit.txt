@@ -1,0 +1,101 @@
+(lldb) target create "gemm-comparison/native-extra"
+Current executable set to './gemm-comparison/native-extra' (arm64).
+(lldb) settings set -- target.run-args  "sgemm" "2048" "1" "1" "1" "0" "gemm-comparison/results/2048" "gemm-comparison/path-audit/sg-debug.bin" "gemm-comparison/path-audit/sg-debug.json"
+(lldb) breakpoint set -n cblas_sgemm
+Breakpoint 1: where = libBLAS.dylib`cblas_sgemm, address = 0x00000001816e67c0
+(lldb) run
+Process 36173 launched: './gemm-comparison/native-extra' (arm64)
+Process 36173 stopped
+* thread #1, queue = 'com.apple.main-thread', stop reason = breakpoint 1.1
+    frame #0: 0x000000019281e7c0 libBLAS.dylib`cblas_sgemm
+libBLAS.dylib`cblas_sgemm:
+->  0x19281e7c0 <+0>:  pacibsp 
+    0x19281e7c4 <+4>:  sub    sp, sp, #0x40
+    0x19281e7c8 <+8>:  stp    x29, x30, [sp, #0x30]
+    0x19281e7cc <+12>: add    x29, sp, #0x30
+Target 0: (native-extra) stopped.
+(lldb) disassemble -s 0x1923bcb80 -c 40 -b
+libBLAS.dylib`___lldb_unnamed_symbol4278:
+    0x1923bcb80 <+88>:  0x00201188   .long  0x00201188                ; unknown opcode
+    0x1923bcb84 <+92>:  0x00201189   .long  0x00201189                ; unknown opcode
+    0x1923bcb88 <+96>:  0xf100089f   cmp    x4, #0x2
+    0x1923bcb8c <+100>: 0x5400030b   b.lt   0x1923bcbec               ; <+196>
+    0x1923bcb90 <+104>: 0xd37ef568   lsl    x8, x11, #2
+    0x1923bcb94 <+108>: 0x52800809   mov    w9, #0x40                 ; =64 
+    0x1923bcb98 <+112>: 0x72a00409   movk   w9, #0x20, lsl #16
+    0x1923bcb9c <+116>: 0xd100048a   sub    x10, x4, #0x1
+    0x1923bcba0 <+120>: 0x8b0b08eb   add    x11, x7, x11, lsl #2
+    0x1923bcba4 <+124>: 0xd37ef4cc   lsl    x12, x6, #2
+    0x1923bcba8 <+128>: 0x52a0022d   mov    w13, #0x110000            ; =1114112 
+    0x1923bcbac <+132>: 0x8b0608ae   add    x14, x5, x6, lsl #2
+    0x1923bcbb0 <+136>: 0xd2e8000f   mov    x15, #0x4000000000000000  ; =4611686018427387904 
+    0x1923bcbb4 <+140>: 0xb340ddcf   bfxil  x15, x14, #0, #56
+    0x1923bcbb8 <+144>: 0x0020100f   .long  0x0020100f                ; unknown opcode
+    0x1923bcbbc <+148>: 0xd2e8000f   mov    x15, #0x4000000000000000  ; =4611686018427387904 
+    0x1923bcbc0 <+152>: 0xb340dd6f   bfxil  x15, x11, #0, #56
+    0x1923bcbc4 <+156>: 0x0020102f   .long  0x0020102f                ; unknown opcode
+    0x1923bcbc8 <+160>: 0x0020119f   .long  0x0020119f                ; unknown opcode
+    0x1923bcbcc <+164>: 0x0020118d   .long  0x0020118d                ; unknown opcode
+    0x1923bcbd0 <+168>: 0x9144412f   add    x15, x9, #0x110, lsl #12  ; =0x110000 
+    0x1923bcbd4 <+172>: 0x00201189   .long  0x00201189                ; unknown opcode
+    0x1923bcbd8 <+176>: 0x0020118f   .long  0x0020118f                ; unknown opcode
+    0x1923bcbdc <+180>: 0x8b08016b   add    x11, x11, x8
+    0x1923bcbe0 <+184>: 0x8b0c01ce   add    x14, x14, x12
+    0x1923bcbe4 <+188>: 0xf100054a   subs   x10, x10, #0x1
+    0x1923bcbe8 <+192>: 0x54fffe41   b.ne   0x1923bcbb0               ; <+136>
+    0x1923bcbec <+196>: 0xaa1403e0   mov    x0, x20
+    0x1923bcbf0 <+200>: 0xaa1503e1   mov    x1, x21
+    0x1923bcbf4 <+204>: 0xaa1303e2   mov    x2, x19
+    0x1923bcbf8 <+208>: 0x940000ba   bl     0x1923bcee0               ; ___lldb_unnamed_symbol4282
+    0x1923bcbfc <+212>: 0xd1004280   sub    x0, x20, #0x10
+    0x1923bcc00 <+216>: 0x8b131aa1   add    x1, x21, x19, lsl #6
+    0x1923bcc04 <+220>: 0xaa1303e2   mov    x2, x19
+    0x1923bcc08 <+224>: 0xa9427bfd   ldp    x29, x30, [sp, #0x20]
+    0x1923bcc0c <+228>: 0xa9414ff4   ldp    x20, x19, [sp, #0x10]
+    0x1923bcc10 <+232>: 0xa8c357f6   ldp    x22, x21, [sp], #0x30
+    0x1923bcc14 <+236>: 0xd50323ff   autibsp 
+    0x1923bcc18 <+240>: 0x140002dc   b      0x1923bd788               ; ___lldb_unnamed_symbol4283
+
+libBLAS.dylib`___lldb_unnamed_symbol4279:
+    0x1923bcc1c <+0>:   0xaa0303e0   mov    x0, x3
+(lldb) breakpoint set -a 0x1923bcbd4
+Breakpoint 2: where = libBLAS.dylib`___lldb_unnamed_symbol4278 + 172, address = 0x00000001923bcbd4
+(lldb) continue
+Process 36173 resuming
+Process 36173 stopped
+* thread #1, queue = 'com.apple.main-thread', stop reason = breakpoint 2.1
+    frame #0: 0x00000001923bcbd4 libBLAS.dylib`___lldb_unnamed_symbol4278 + 172
+libBLAS.dylib`___lldb_unnamed_symbol4278:
+->  0x1923bcbd4 <+172>: .long  0x00201189                ; unknown opcode
+    0x1923bcbd8 <+176>: .long  0x0020118f                ; unknown opcode
+    0x1923bcbdc <+180>: add    x11, x11, x8
+    0x1923bcbe0 <+184>: add    x14, x14, x12
+Target 0: (native-extra) stopped.
+(lldb) register read x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15
+      x0 = 0x0000000000000000
+      x1 = 0x0000000000000000
+      x2 = 0x0000000000000020
+      x3 = 0x0000000000000020
+      x4 = 0x0000000000000800
+      x5 = 0x000000049ec00000
+      x6 = 0x0000000000000020
+      x7 = 0x000000049f400000
+      x8 = 0x0000000000000080
+      x9 = 0x0000000000200040
+     x10 = 0x00000000000007ff
+     x11 = 0x000000049f400080
+     x12 = 0x0000000000000080
+     x13 = 0x0000000000110000
+     x14 = 0x000000049ec00080
+     x15 = 0x0000000000310040
+(lldb) bt
+* thread #1, queue = 'com.apple.main-thread', stop reason = breakpoint 2.1
+  * frame #0: 0x00000001923bcbd4 libBLAS.dylib`___lldb_unnamed_symbol4278 + 172
+    frame #1: 0x00000001923b50d8 libBLAS.dylib`___lldb_unnamed_symbol4226 + 788
+    frame #2: 0x00000001923b4db8 libBLAS.dylib`___lldb_unnamed_symbol4225 + 68
+    frame #3: 0x000000019243c91c libBLAS.dylib`___lldb_unnamed_symbol5277 + 3640
+    frame #4: 0x0000000192562bd8 libBLAS.dylib`___lldb_unnamed_symbol6254 + 152
+    frame #5: 0x000000019281e824 libBLAS.dylib`cblas_sgemm + 100
+    frame #6: 0x0000000100001838 native-extra`main + 3880
+    frame #7: 0x0000000191245d54 dyld`start + 7184
+(lldb) quit

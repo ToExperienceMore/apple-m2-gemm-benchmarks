@@ -1,0 +1,152 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "aneforge"
+# The version is derived from the git tag at build time (hatch-vcs); cut a release
+# by tagging vX.Y.Z. aneforge.__version__ reads it back from the installed metadata.
+dynamic = ["version"]
+description = "Direct Apple Neural Engine (ANE) backend. A CoreML-free Python frontend that compiles operator graphs into a single fused e5rt program and dispatches them to the ANE."
+readme = "README.md"
+# The core package (aneforge/*.py, aneforge/_bridges/*.py) imports only numpy as a
+# third-party dependency. Several core modules use PEP 604 unions (``int | None``)
+# in runtime-evaluated function signatures without ``from __future__ import
+# annotations``, which requires Python >= 3.10. Developed/verified on Python 3.14.
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE", "NOTICE"]
+authors = [{ name = "Spencer Bryngelson", email = "shb@gatech.edu" }]
+keywords = ["apple-neural-engine", "ane", "apple-silicon", "machine-learning", "inference", "espresso", "e5rt"]
+
+# Only numpy is imported by the core package. torch / torchvision / transformers
+# are LAZY imports inside aneforge.models (pretrained loaders only) and are NOT
+# required to import or run aneforge itself; install them yourself if you call the
+# pretrained-model loaders. mlx / torch are only used by the GPU-comparison
+# benchmark tools (see the [project.optional-dependencies] `bench` extra).
+dependencies = [
+    "numpy",
+]
+
+# IMPORTANT (platform): aneforge only *runs* on Apple Silicon macOS. It dispatches
+# to the ANE through the built ``libane_e5rt_dispatch.dylib`` (one-time clang++
+# build, see README "Install"). It cannot dispatch on non-Apple hardware; the wheel
+# installs anywhere and imports (the off-device tooling works), but compiling or
+# dispatching to the ANE needs the dylib + Apple Silicon.
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Operating System :: MacOS :: MacOS X",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.optional-dependencies]
+# Optional deps for the GPU/CPU cross-comparison benchmark tools, which compare the
+# ANE against the Apple GPU via MLX and use torch for reference numerics. Not needed
+# by the aneforge package itself.
+bench = [
+    "mlx>=0.31",
+    "torch",
+]
+# Pretrained model loaders (aneforge.models.load / load_resnet), the LLM/MoE GGUF
+# loader (aneforge.moe.load_gguf needs gguf), and the diffusion examples. Imported
+# lazily; only install if you use them.
+models = [
+    "torch",
+    "torchvision",
+    "transformers",
+    "gguf",
+]
+# ONNX model import (aneforge.onnx.load_onnx / onnx_to_tensor). Imported lazily; the
+# core package stays numpy-only. Only install if you import ONNX models.
+onnx = ["onnx>=1.16"]
+# MLPerf-style benchmark harness (bench/mlperf/): the real MLCommons LoadGen driver plus
+# the ResNet-50 workload deps (ONNX import, onnxruntime reference, torchvision demo model,
+# Pillow preprocessing). loadgen is a C++ build if no wheel is available for your Python.
+mlperf = [
+    "mlcommons-loadgen",
+    "onnx>=1.16",
+    "onnxruntime>=1.18",
+    "torchvision",
+    "pillow",
+    "opencv-python",   # exact MLPerf ResNet-50 preprocessing (cv2 INTER_AREA resize + decode)
+]
+# Linting + test runner (CI and local dev). ruff is the linter; the corpus/pytest
+# suites need real ANE hardware to run.
+dev = [
+    "ruff",
+    "pyright==1.1.411",  # type checker; pinned so a new release can't add errors out from under CI
+    "pylint",            # CI 2-space + trailing-whitespace lock (W0311/C0303); see .github/workflows/ci.yml
+    "pre-commit",        # local hooks mirroring CI; see .pre-commit-config.yaml
+    "pytest",
+    "pytest-forked",   # per-test process isolation (--forked); see tests/conftest.py
+    "onnx>=1.16",        # ONNX importer tests (tests/test_onnx.py); lazy in aneforge.onnx
+    "onnxruntime>=1.18", # reference numerics for ONNX importer tests
+]
+
+[project.urls]
+Homepage = "https://github.com/sbryngelson/ANEForge"
+Repository = "https://github.com/sbryngelson/ANEForge"
+Documentation = "https://aneforge.readthedocs.io"
+Issues = "https://github.com/sbryngelson/ANEForge/issues"
+
+[tool.hatch.version]
+source = "vcs"
+# PyPI/TestPyPI reject PEP 440 local versions (the "+gHASH" suffix hatch-vcs adds to
+# untagged dev builds). Drop the local segment so dev builds (e.g. 0.1.5.dev23) are
+# uploadable; tagged releases (vX.Y.Z) are unaffected — they have no local segment.
+raw-options = { local_scheme = "no-local-version" }
+
+[tool.hatch.build.hooks.vcs]
+version-file = "aneforge/_version.py"
+
+[tool.hatch.build.targets.wheel]
+# Ship the aneforge package and everything tracked under it — including the e5rt
+# dispatch shim SOURCE in aneforge/_lib/ (ane_e5rt_dispatch.mm + e5rt_api.h +
+# build.sh), which loads at runtime via _runtime.py::_find_dylib. The built
+# libane_e5rt_dispatch.dylib is gitignored (compiled per-machine by
+# `sh aneforge/_lib/build.sh`), so hatchling excludes it automatically.
+packages = ["aneforge"]
+
+[tool.pytest.ini_options]
+# Collect only the tracked correctness suites. The RE/paper test tooling (fuzzers,
+# capability census) lives in the gitignored utils/ dir and is intentionally excluded.
+testpaths = ["tests"]
+# Device tests carry the `requires_ane` marker (registered here + in tests/conftest.py):
+# CI runs `pytest -m "not requires_ane"` to collect only the hardware-free suites, and the
+# conftest hook auto-skips any that are still collected on a machine without the ANE.
+markers = [
+  "requires_ane: needs real ANE hardware; auto-skipped when the e5rt dylib is unavailable",
+]
+# Run each test in its own forked subprocess: every compile allocates an ANE program
+# and a single process accumulates them across the suite (the training/streaming tests
+# build hundreds), approaching the per-PID program limit and causing sporadic
+# late-suite failures. A fresh process per test resets that; fork overhead is negligible
+# beside the ANE compile time. Requires pytest-forked (in the `dev` extra); the env it
+# needs is set in tests/conftest.py.
+addopts = "--forked"
+
+[tool.ruff]
+line-length = 120
+indent-width = 2          # tinygrad-compact: the codebase is 2-space (also enforced via pylint W0311 in CI)
+# Lint the shippable code only; utils/ is gitignored local tooling.
+extend-exclude = ["utils"]
+
+[tool.ruff.lint]
+# E4/E7/E9 + F (pyflakes), plus flake8-comprehensions (C4) and flake8-builtins (A).
+select = ["E4", "E7", "E9", "F", "C4", "A"]
+# Minus the dense-style idioms this codebase uses deliberately: multi-import lines,
+# module imports after a sys.path shim, semicolon / colon multi-statements, assigned
+# lambdas, and short math names (l, I, af, ...).
+ignore = ["E401", "E402", "E701", "E702", "E703", "E731", "E741"]
+
+[tool.ruff.lint.flake8-builtins]
+# `input` and `compile` are intentional public-API op names (af.input / af.compile),
+# like torch/tinygrad; allow them while A still catches accidental builtin shadowing.
+builtins-ignorelist = ["input", "compile"]

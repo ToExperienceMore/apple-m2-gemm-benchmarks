@@ -1,0 +1,41 @@
+[
+  {
+    "mode": "f16f16",
+    "z_accumulators": 2,
+    "author_tflops": 3.2728,
+    "samples_tflops": [
+      3.1900428035948605,
+      3.2729462043949513,
+      3.224326199028065
+    ],
+    "mean_tflops": 3.229105069005959,
+    "max_tflops": 3.2729462043949513,
+    "percent_of_author": 98.66490677725369
+  },
+  {
+    "mode": "f16f32",
+    "z_accumulators": 1,
+    "author_tflops": 1.6368,
+    "samples_tflops": [
+      1.4829203208242268,
+      1.6137460929972363,
+      1.6257436677948054
+    ],
+    "mean_tflops": 1.5741366938720895,
+    "max_tflops": 1.6257436677948054,
+    "percent_of_author": 96.17159664418924
+  },
+  {
+    "mode": "f32f32",
+    "z_accumulators": 4,
+    "author_tflops": 1.6369,
+    "samples_tflops": [
+      1.6238655083802684,
+      1.6167523530607482,
+      1.627565183692477
+    ],
+    "mean_tflops": 1.6227276817111644,
+    "max_tflops": 1.627565183692477,
+    "percent_of_author": 99.13419767311163
+  }
+]

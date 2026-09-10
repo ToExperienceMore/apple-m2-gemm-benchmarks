@@ -1,0 +1,113 @@
+Analysis of sampling native (pid 33529) every 1 millisecond
+Process:         native [33529]
+Path:            ./native
+Load Address:    0x100ec8000
+Identifier:      native
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  Python [33469]
+Target Type:     live task
+
+Date/Time:       2026-09-10 19:30:25.753 +0200
+Launch Time:     2026-09-10 19:30:25.661 +0200
+OS Version:      macOS 26.0.1 (25A362)
+Report Version:  7
+Analysis Tool:   sample
+
+Physical footprint:         30.6M
+Physical footprint (peak):  30.6M
+Idle exit:                  untracked
+----
+
+Call graph:
+    1684 Thread_4621353: Main Thread
+      1684 start  (in dyld) + 7184  [0x191245d54]
+        1684 main  (in native) + 2908  [0x100ec946c]
+          1684 BNNSMatMul  (in libBNNS.dylib) + 616  [0x19f204944]
+            1684 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x615b8  [0x19edc55b8]
+              1684 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x5b534  [0x19edbf534]
+                1684 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x603a4  [0x19edc43a4]
+                  1684 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0xa090f4  [0x19f76d0f4]
+                    1684 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0xa095cc  [0x19f76d5cc]
+                      1684 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x6946c  [0x19edcd46c]
+                        1684 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0xa1fcf0  [0x19f783cf0]
+                          1531 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0xa212f0  [0x19f7852f0]
+                          + 1433 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x553038  [0x19f2b7038]
+                          + 62 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x55303c  [0x19f2b703c]
+                          + 15 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x55304c  [0x19f2b704c]
+                          + 7 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x553020  [0x19f2b7020]
+                          + 7 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x553030  [0x19f2b7030]
+                          + 3 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x553050  [0x19f2b7050]
+                          + 2 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x553024  [0x19f2b7024]
+                          + 2 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x5530bc  [0x19f2b70bc]
+                          80 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0xa1fff4  [0x19f783ff4]
+                          + 80 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x1be494  [0x19ef22494]
+                          +   80 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b32dc  [0x19f1172dc]
+                          +     41 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b3938  [0x19f117938]
+                          +     ! 37 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b3a48  [0x19f117a48]
+                          +     ! 1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b3a18  [0x19f117a18]
+                          +     ! 1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b3a4c  [0x19f117a4c]
+                          +     ! 1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b3a54  [0x19f117a54]
+                          +     ! 1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b3c94  [0x19f117c94]
+                          +     15 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b3968  [0x19f117968]
+                          +     ! 13 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b3a48  [0x19f117a48]
+                          +     ! 1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b3a14  [0x19f117a14]
+                          +     ! 1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b3a4c  [0x19f117a4c]
+                          +     12 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b3cb0  [0x19f117cb0]
+                          +     5 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b3688  [0x19f117688]
+                          +     3 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b3674  [0x19f117674]
+                          +     2 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b3cb4  [0x19f117cb4]
+                          +     1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b3680  [0x19f117680]
+                          +     1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b36a0  [0x19f1176a0]
+                          18 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0xa21424  [0x19f785424]
+                          + 11 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x555740  [0x19f2b9740]
+                          + 2 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x5556a8  [0x19f2b96a8]
+                          + 1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x555680  [0x19f2b9680]
+                          + 1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x5556e0  [0x19f2b96e0]
+                          + 1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x555734  [0x19f2b9734]
+                          + 1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x555744  [0x19f2b9744]
+                          + 1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x555748  [0x19f2b9748]
+                          10 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x55841c  [0x19f2bc41c]
+                          6 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0xa213dc  [0x19f7853dc]
+                          + 2 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x553e0c  [0x19f2b7e0c]
+                          + 1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x553b34  [0x19f2b7b34]
+                          + 1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x553dac  [0x19f2b7dac]
+                          + 1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x553dcc  [0x19f2b7dcc]
+                          + 1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x553e20  [0x19f2b7e20]
+                          5 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x558434  [0x19f2bc434]
+                          5 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x558444  [0x19f2bc444]
+                          4 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x558440  [0x19f2bc440]
+                          4 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x558450  [0x19f2bc450]
+                          4 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x558480  [0x19f2bc480]
+                          2 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x558400  [0x19f2bc400]
+                          2 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x558430  [0x19f2bc430]
+                          1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x5559fc  [0x19f2b99fc]
+                          1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x555a00  [0x19f2b9a00]
+                          1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x558404  [0x19f2bc404]
+                          1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x558414  [0x19f2bc414]
+                          1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x55848c  [0x19f2bc48c]
+                          1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0xa20f14  [0x19f784f14]
+                          1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0xa20ffc  [0x19f784ffc]
+                          1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0xa21200  [0x19f785200]
+                          1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0xa212b8  [0x19f7852b8]
+                          1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0xa212d0  [0x19f7852d0]
+                          1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0xa212d8  [0x19f7852d8]
+                          1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0xa21314  [0x19f785314]
+                          1 ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0xa21430  [0x19f785430]
+
+Total number in stack (recursive counted multiple, when >=5):
+
+Sort by top of stack, same collapsed (when >= 5):
+        ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x553038  [0x19f2b7038]        1433
+        ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x55303c  [0x19f2b703c]        62
+        ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b3a48  [0x19f117a48]        50
+        ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x55304c  [0x19f2b704c]        15
+        ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b3cb0  [0x19f117cb0]        12
+        ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x555740  [0x19f2b9740]        11
+        ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x55841c  [0x19f2bc41c]        10
+        ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x553020  [0x19f2b7020]        7
+        ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x553030  [0x19f2b7030]        7
+        ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x3b3688  [0x19f117688]        5
+        ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x558434  [0x19f2bc434]        5
+        ???  (in libBNNS.dylib)  load address 0x19ed64000 + 0x558444  [0x19f2bc444]        5
