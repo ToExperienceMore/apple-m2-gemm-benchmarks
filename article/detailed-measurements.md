@@ -41,3 +41,9 @@ MPS also exposes command-buffer GPU timestamps. They exclude the host-side compl
 | 2048 | 7.33 | 7.06 | 2.43 |
 | 4096 | 57.23 | 56.79 | 2.42 |
 
+
+### Variation across repeated measurements
+
+![Mean latency and all ten recorded samples for 2048 × 2048 matrices](figures/gemm-2048-latency.png)
+
+Including input packing, AMX takes **7.28 ms**, close to the GPU's **7.33 ms**. Their sample ranges overlap.

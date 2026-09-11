@@ -1,6 +1,6 @@
 # Apple M2 GEMM: AMX vs. GPU vs. ANE
 
-This project benchmarks matrix multiplication (GEMM) on Apple M2’s AMX matrix coprocessor, GPU, and Apple Neural Engine (ANE). It compares throughput across matrix sizes and examines how arithmetic precision, input packing, and constant versus runtime inputs affect performance.
+This project benchmarks matrix multiplication (GEMM) on Apple M2’s AMX matrix coprocessor, GPU, and Apple Neural Engine (ANE). It compares GEMM throughput across matrix sizes.
 
 **[Read the article](article/m2-benchmark.md)** · **[Run the benchmarks](#quick-start)**
 
@@ -10,7 +10,7 @@ At N=2048, ANE with constant B reaches **8.54 TFLOPS**, compared with **2.34 TFL
 
 **Hardware:** MacBook Air (Mac14,15), M2 (8-core CPU, 10-core GPU), 16 GB memory.
 
-Square GEMM with **M = N = K = 2048**. Buffers are preallocated and reused; times are synchronous wall-clock means over 10 samples of 10 calls, after 10 warmups. GEMM runs used battery power.
+Square GEMM with **M = N = K = 2048**.
 
 | Implementation | Arithmetic / I/O | Mean (ms) | TFLOPS |
 | :--- | :--- | ---: | ---: |
@@ -24,7 +24,7 @@ Square GEMM with **M = N = K = 2048**. Buffers are preallocated and reused; time
 
 Prepacked excludes A/B packing time. Arithmetic entries show input and accumulation precision; FP16 I/O specifies buffer precision only, with GPU/ANE accumulation precision unverified.
 
-See the article for [compute references](article/m2-benchmark.md#1-compute-references) and throughput as a percentage of each reference.
+See the article for [compute throughput references](article/m2-benchmark.md#1-compute-throughput-references) and throughput as a percentage of each reference.
 
 ### Performance across matrix sizes
 
@@ -82,6 +82,18 @@ The published GEMM measurements used battery power; the AMX instruction referenc
 In the summary, `cpu` means BNNS/AMX, `sgemm` means Accelerate SGEMM, and `gpu` means MPS. `ane-constant` and `ane-dynamic` use constant B and runtime A+B respectively. `amx-fp16-prepacked` excludes A/B packing.
 
 `Relative L2` reports error against the FP32 reference. FP16 accumulation can produce larger errors while passing its own validation. The N=64/128 quick check verifies execution and correctness; compare performance at matching matrix sizes, precision, thread counts and power conditions.
+
+## Measurement conditions
+
+For each matrix size, the runner performs 10 warmup calls, then records 10 samples of 10 calls each. Each sample reports elapsed time per call; the summary reports the mean across samples. Calls wait for computation to complete and reuse preallocated input/output buffers.
+
+AMX packing rearranges inputs into the kernel's required memory layout. The packing-included result times this work on each call; the prepacked result prepares the inputs before timing. ANE constant B embeds one input matrix in the compiled program; the runtime-input version supplies both matrices at execution.
+
+- **Hardware:** MacBook Air M2, 4 performance + 4 efficiency CPU cores, 10-core GPU, 16 GB memory.
+- **Inputs:** the same reproducible random FP16 values for every implementation, converted to FP32 for SGEMM. Buffers are reused without clearing caches. Even when both ANE inputs are passed at execution, their values stay unchanged during timing.
+- **Threads:** BNNS is tested with 1, 4 and 8 threads; custom AMX with 1 and 4 workers. Results show the fastest mean at each matrix size. SGEMM uses `VECLIB_MAXIMUM_THREADS=8`.
+
+Timing excludes memory allocation, compilation, initial data copies and correctness checks. BNNS/SGEMM timing includes any input rearrangement inside the libraries. MPS timing includes submitting prepared GPU commands and waiting for completion. ANE timing covers native execution and completion using buffers already in place.
 
 ## Numerical validation
 
